@@ -1,3 +1,6 @@
+#########################################################
+# 2-1
+
 # import requests
 # from bs4 import BeautifulSoup
 
@@ -23,6 +26,7 @@
 #     print(title)
 
 #########################################################
+# 2-2
 from selenium import webdriver
 
 browser = webdriver.Chrome('./chromedriver.exe')
@@ -63,3 +67,45 @@ while True:
     prev_height = current_height
 
 print("스크롤 완료")
+
+#########################################################
+# 2-3 ~ 2-4
+
+import requests
+from bs4 import BeautifulSoup
+
+# selenium을 통해 페이지 소스 가져오기
+soup = BeautifulSoup(browser.page_source, "lxml")
+
+# movies = soup.find_all("div", attrs={"class": ["ImZGtf mpg5gc", "Vpfmgd"]})
+movies = soup.find_all("div", attrs={"class": "Vpfmgd"})
+print(len(movies))
+
+for movie in movies:
+    title = movie.find("div", attrs={"class": "WsMG1c nnK0zc"}).get_text()
+    # print(title)
+
+    # 할인 전 가격
+    original_price = movie.find("span", attrs={"class": "SUZt4c djCuy"})
+    if original_price:
+        original_price = original_price.get_text()
+    else:
+        # print(title, "<할인되지 않은 영화는 제외합니다.>")
+        continue
+
+    # 할인된 가격
+    sale_price = movie.find("span", attrs={
+        "class": "VfPpfd ZdBevf i5DZme"
+    }).get_text()
+
+    # 링크
+    link = movie.find("a", attrs={"class": "JC71ub"})["href"]
+    # https://play.google.com + link
+
+    print(f"제목 : {title}")
+    print(f"할인 전 금액 : {original_price}")
+    print(f"할인 후 금액 : {sale_price}")
+    print("링크 : ", "https://play.google.com" + link)
+    print("-" * 100)
+
+browser.quit()
