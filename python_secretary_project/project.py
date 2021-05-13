@@ -145,27 +145,12 @@ def scrap_global_news(sector):
     print()
 
 
-# TODO:  경제 관련 데이터 - 원달러 환율, 국내/ 미국 대표 지수 변동률
-def scrap_exchange_rate():
-    exchange_rate_url = "https://finance.naver.com/marketindex/exchangeDetail.nhn?marketindexCd=FX_USDKRW"
-    soup = create_soup(exchange_rate_url)
-
-    # 원달러 환율
-    exchange_rate = soup.find("p", attrs={
-        "class": "no_today"
-    }).em.get_text().strip()
-
-    # 전일 대비
-    exday = soup.find("p", attrs={"class": "no_exday"})
-    exday_list = exday.find_all("em", attrs={"class": "no_up"})
-
-    data = ""
-    for ex in exday_list:
-        data += ex.get_text().strip().replace("\n", "")
-    data = data.split("\t")
-
-    # 출력
-    print(f"원달러 환율 {exchange_rate}원 | 전일 대비 {data[0]} 상승")
+##### 경제 관련 데이터 - 원달러 환율, 국내/ 미국 대표 지수 변동률 #####
+def print_economic_data():
+    scrap_exchange_rate()  # 원달러 환율
+    scrap_stock_index()  # 코스피, 코스닥 지수
+    scrap_nasdaq_index()  #나스닥 지수
+    scrap_sp500_index()  #S&P500 지수
 
 
 def scrap_stock_index():
@@ -193,35 +178,86 @@ def scrap_stock_index():
     print(f"오늘의 코스닥 지수 {kosdaq_data}")
 
 
-def scrap_global_stock_index():
-    global_stock_index_url = "https://finance.naver.com/world/sise.nhn?symbol=NAS@IXIC"
-    soup = create_soup(global_stock_index_url)
+def scrap_exchange_rate():
+    exchange_rate_url = "https://finance.naver.com/marketindex/exchangeDetail.nhn?marketindexCd=FX_USDKRW"
+    soup = create_soup(exchange_rate_url)
+
+    # 원달러 환율
+    exchange_rate = soup.find("p", attrs={
+        "class": "no_today"
+    }).em.get_text().strip()
+
+    # 전일 대비
+    exday = soup.find("p", attrs={"class": "no_exday"})
+    exday_list = exday.find_all("em", attrs={"class": "no_up"})
+
+    data = ""
+    for ex in exday_list:
+        data += ex.get_text().strip().replace("\n", "")
+    data = data.split("\t")
+
+    # 출력
+    print(f"원달러 환율 {exchange_rate}원 | 전일 대비 {data[0]} 상승")
+
+
+def scrap_nasdaq_index():
+    nasdaq_index_url = "https://finance.naver.com/world/sise.nhn?symbol=NAS@IXIC"
+    soup = create_soup(nasdaq_index_url)
 
     # 해외 주요 지수
-    nasdaq = soup.find("div", attrs={"class", "today"})
-    nasdaq_index = nasdaq.em.get_text().replace("\n", ", ")
+    nasdaq = soup.find("p", attrs={"class": "no_today"}).em.get_text().strip()
 
-    print({nasdaq_index})
+    # 전일 대비
+    exday = soup.find("p", attrs={"class": "no_exday"})
+    exday_list = exday.find_all("em", attrs={"class": "no_up"})
+
+    data = ""
+    for ex in exday_list:
+        data += ex.get_text().strip().replace("\n", "")
+    data = data.split("\t")
+
+    # 출력
+    print(f"오늘 나스닥 지수 : {nasdaq} | 전일 대비 {data[0]} 상승")
 
 
+def scrap_sp500_index():
+    sp500_index_url = "https://finance.naver.com/world/sise.nhn?symbol=SPI@SPX"
+    soup = create_soup(sp500_index_url)
+
+    # 해외 주요 지수
+    sp500 = soup.find("p", attrs={"class": "no_today"}).em.get_text().strip()
+
+    # 전일 대비
+    exday = soup.find("p", attrs={"class": "no_exday"})
+    exday_list = exday.find_all("em", attrs={"class": "no_up"})
+
+    data = ""
+    for ex in exday_list:
+        data += ex.get_text().strip().replace("\n", "")
+    data = data.split("\t")
+
+    # 출력
+    print(f"오늘 S&P500 지수 : {sp500} | 전일 대비 {data[0]} 상승")
+
+
+## main
 if __name__ == "__main__":
-    # # 현재 시간 출력
-    # realtime_print()
+    # 현재 시간 출력
+    realtime_print()
 
-    # # 오늘의 날씨 정보 가져오기
-    # scrap_weather()
+    # 오늘의 날씨 정보 가져오기
+    scrap_weather()
 
-    # # 영어 회화
-    # scrap_english()
+    # 영어 회화
+    scrap_english()
 
-    # #### 국내 분야별 뉴스 가져오기
-    # scrap_news("politics")
-    # scrap_news("economy")
-    # scrap_news("it")
+    # 국내 분야별 뉴스 가져오기
+    scrap_news("politics")
+    scrap_news("economy")
+    scrap_news("it")
 
-    # #### 해외 현재 트렌딩 뉴스
-    # scrap_global_news("economy")
+    # 해외 현재 트렌딩 뉴스
+    scrap_global_news("economy")
 
-    # scrap_exchange_rate()
-    # scrap_stock_index()
-    scrap_global_stock_index()
+    # 경제 데이터 출력
+    print_economic_data()
