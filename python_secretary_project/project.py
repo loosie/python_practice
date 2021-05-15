@@ -9,20 +9,33 @@ headers = {
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36"
 }
 
+## 스크래핑 날짜
+gIndex = 0
+now = datetime.datetime.now()
+nowDate = now.strftime('%Y년 %m월 %d일 (%a)')
+
+## CSV 파일 생성
+fileDate = now.strftime('%Y%m%d')
+filename = f"{fileDate}.csv"
+f = open(filename, "w", encoding="utf8", newline="")
+writer = csv.writer(f)
+
+## CSV 열 목록 생성
+title = "N\t카테고리\t내용\t링크".split("\t")
+writer.writerow(title)
+
+print(f"안녕하세요. 오늘은 {nowDate} 입니다.")  # 2021-05-112
+
+res = f"{gIndex}-----[오늘의 날짜]-----"
+res += f"{nowDate}"
+writer.writerow(res.split("-----"))
+
 
 def create_soup(url):
     res = requests.get(url, headers=headers)
     res.raise_for_status()
     soup = BeautifulSoup(res.text, "lxml")
     return soup
-
-
-############### 조회 날짜 ###############
-def realtime_print():
-    now = datetime.datetime.now()
-    nowDate = now.strftime('%Y년 %m월 %d일 (%a)')
-    print(f"안녕하세요. 오늘은 {nowDate} 입니다.")  # 2021-05-112
-    print()
 
 
 ############### 날씨 ###############
@@ -52,18 +65,26 @@ def scrap_weather():
     # 미세먼지 정보
     dust_data = soup.find("dl", attrs={
         "class": "indicator"
-    }).find_all("dd", attrs={"class": "lv2"})
+    }).find_all("dd", attrs={"class": "lv1"})
 
     # 출력
-    print("[오늘의 날씨]")
-    print(f"현재 {pos_degree} (최저 {min_degree}/ 최고 {max_degree})")
-    print(weather_info)
-    print(
-        f"오전 강수확률 {rainy_data[0].get_text()}% / 오후 강수확률 {rainy_data[1].get_text()}%"
-    )
-    print(f"미세먼지 {dust_data[0].get_text()}")
-    print(f"초미세먼지 {dust_data[1].get_text()}")
-    print()
+    # print("[오늘의 날씨]")
+    # print(f"현재 {pos_degree} (최저 {min_degree}/ 최고 {max_degree})")
+    # print(weather_info)
+    # print(
+    #     f"오전 강수확률 {rainy_data[0].get_text()}% / 오후 강수확률 {rainy_data[1].get_text()}%"
+    # )
+    # print(f"미세먼지 {dust_data[0].get_text()}")
+    # print(f"초미세먼지 {dust_data[1].get_text()}")
+    # print()
+    gIdx = gIndex + 1
+    res = f"{gIdx}-----[오늘의 날씨]-----"
+    res += f"현재 {pos_degree} (최저 {min_degree}/ 최고 {max_degree})\n"
+    res += f"{weather_info}\n"
+    res += f"오전 강수확률 {rainy_data[0].get_text()}% / 오후 강수확률 {rainy_data[1].get_text()}%\n"
+    res += f"미세먼지 {dust_data[0].get_text()}\n"
+    res += f"초미세먼지 {dust_data[1].get_text()}"
+    writer.writerow(res.split("-----"))
 
 
 ############### 회화 ###############
@@ -72,19 +93,25 @@ def scrap_english():
     soup = create_soup(eng_url)
 
     sentences = soup.find_all("div", attrs={"id": re.compile("^conv_kor_t")})
-    print("[오늘의 영어 회화]")
-    print("(영어지문)")
 
+    # print("[오늘의 영어 회화]")
+    # print("(영어지문)")
+
+    gIdx = gIndex
+
+    gIdx = gIdx + 1
+    res = f"{gIdx}-----[오늘의 영어 회화]-----"
     # 8문장이 있다고 가정, 5~8까지 영어문장 (idx: 4~7)
     for txt in sentences[len(sentences) // 2:]:
-        print(txt.get_text().strip())
-
-    print()
-    print("(한글지문)")
+        res += f"{txt.get_text().strip()}\n"
+    writer.writerow(res.split("-----"))
+    # print("(한글지문)")
     # 8문장이 있다고 가정, 0~3까지 한글문장 (idx: 0~3)
+    gIdx = gIdx + 1
+    res = f"{gIdx}-----[오늘의 영어 회화]-----"
     for txt in sentences[:len(sentences) // 2:]:
-        print(txt.get_text().strip())
-    print()
+        res += f"{txt.get_text().strip()}\n"
+    writer.writerow(res.split("-----"))
 
 
 ############### 국내 News ###############
@@ -109,14 +136,19 @@ def scrap_news(sector):
     }).find_all("li")
 
     # 출력
-    print(f"[국내 {sector_name} 헤드라인 뉴스]")
+    # print(f"[국내 {sector_name} 헤드라인 뉴스]")
+
+    gIdx = gIndex
     for idx, article in enumerate(news_list):
         headline = article.a.get_text().strip()
         news_link = article.a["href"]
-        print(f"{idx+1}. {headline}")
-        print(f"   (링크 : {news_link} )")
 
-    print()
+        gIdx = gIdx + 1
+        res = f"{gIdx}-----[국내 {sector_name} 헤드라인 뉴스]-----"
+        res += f"{idx+1}. {headline}-----"
+        res += f"{news_link}\n"
+
+        writer.writerow(res.split("-----"))
 
 
 ############### 해외 News ###############
@@ -126,56 +158,35 @@ def scrap_global_news(sector):
     soup = create_soup(news_url)
 
     # 섹터 이름
-    sector_name = soup.find("h1", attrs={
-        "class": "PageHeader-title"
-    }).get_text()
+    # sector_name = soup.find("h1", attrs={
+    #     "class": "PageHeader-title"
+    # }).get_text()
+
     # 트랜딩 뉴스 데이터
     news_data = soup.find("ul", attrs={"class": "TrendingNow-storyContainer"})
     # 헤드라인 목록
     news_list = news_data.find_all("li")
 
     # 출력
-    print(f"[해외 실시간 CNBC 헤드라인 뉴스]")
+    res = ""
+    gIdx = gIndex
     for idx, article in enumerate(news_list):
         headline = article.a.get_text().strip()
         news_link = article.a["href"]
-        print(f"{idx+1}. {headline}")
-        print(f"   (링크 : {news_link} )")
 
-    print()
+        gIdx = gIdx + 1
+        res = f"{gIdx}-----[해외 헤드라인 뉴스]-----"
+        res += f"{idx+1}. {headline}-----"
+        res += f"{news_link}\n"
+
+        writer.writerow(res.split("-----"))
 
 
-##### 경제 관련 데이터 - 원달러 환율, 국내/ 미국 대표 지수 변동률 #####
+##### 경제 관련 데이터 - 원달러 환율, 해외 대표 지수 변동률 #####
 def print_economic_data():
     scrap_exchange_rate()  # 원달러 환율
-    scrap_stock_index()  # 코스피, 코스닥 지수
     scrap_nasdaq_index()  #나스닥 지수
     scrap_sp500_index()  #S&P500 지수
-
-
-def scrap_stock_index():
-    stock_index_url = "https://finance.naver.com/"
-    soup = create_soup(stock_index_url)
-
-    # 코스피
-    kospi = soup.find("div", attrs={"class", "kospi_area group_quot quot_opn"})
-    kospi_index = kospi.find_all("span", attrs={"span", "num_quot dn"})
-
-    kospi_data = ""
-    for ex in kospi_index:
-        kospi_data += ex.get_text().strip().replace("\n", ", ")
-
-    # 코스닥
-    kosdaq = soup.find("div", attrs={"class", "kosdaq_area group_quot"})
-    kosdaq_index = kosdaq.find_all("span", attrs={"span", "num_quot dn"})
-
-    kosdaq_data = ""
-    for ex in kosdaq_index:
-        kosdaq_data += ex.get_text().strip().replace("\n", ", ")
-
-    # 출력
-    print(f"오늘의 코스피 지수 {kospi_data}")
-    print(f"오늘의 코스닥 지수 {kosdaq_data}")
 
 
 def scrap_exchange_rate():
@@ -189,15 +200,28 @@ def scrap_exchange_rate():
 
     # 전일 대비
     exday = soup.find("p", attrs={"class": "no_exday"})
-    exday_list = exday.find_all("em", attrs={"class": "no_up"})
+    exday_up_list = exday.find_all("em", attrs={"class": "no_up"})
+    exday_down_list = exday.find_all("em", attrs={"class": "no_down"})
 
+    gIdx = gIndex
+    res = f"{gIdx}-----[경제 관련 데이터]-----"
+    res += f"달러환율 {exchange_rate}\n"
     data = ""
-    for ex in exday_list:
-        data += ex.get_text().strip().replace("\n", "")
-    data = data.split("\t")
+    if exday_up_list:
+
+        for ex in exday_up_list:
+            data += ex.get_text().strip().replace("\n", "")
+        data = data.split("\t")
+        res += f"전일대비 {data[0]} 상승"
+    else:
+        for ex in exday_down_list:
+            data += ex.get_text().strip().replace("\n", "")
+        data = data.split("\t")
+        res += f"전일대비 {data[0]} 하락"
 
     # 출력
-    print(f"원달러 환율 {exchange_rate}원 | 전일 대비 {data[0]} 상승")
+    # print(f"원달러 환율 {exchange_rate}원 | 전일 대비 {data[0]} 상승")
+    writer.writerow(res.split("-----"))
 
 
 def scrap_nasdaq_index():
@@ -209,15 +233,28 @@ def scrap_nasdaq_index():
 
     # 전일 대비
     exday = soup.find("p", attrs={"class": "no_exday"})
-    exday_list = exday.find_all("em", attrs={"class": "no_up"})
+    exday_up_list = exday.find_all("em", attrs={"class": "no_up"})
+    exday_down_list = exday.find_all("em", attrs={"class": "no_down"})
 
+    gIdx = gIndex
+    res = f"{gIdx}-----[경제 관련 데이터]-----"
+    res += f"나스닥지수 {nasdaq}\n"
     data = ""
-    for ex in exday_list:
-        data += ex.get_text().strip().replace("\n", "")
-    data = data.split("\t")
+    if exday_up_list:
+
+        for ex in exday_up_list:
+            data += ex.get_text().strip().replace("\n", "")
+        data = data.split("\t")
+        res += f"전일대비 {data[0]} 상승"
+    else:
+        for ex in exday_down_list:
+            data += ex.get_text().strip().replace("\n", "")
+        data = data.split("\t")
+        res += f"전일대비 {data[0]} 하락"
 
     # 출력
-    print(f"오늘 나스닥 지수 : {nasdaq} | 전일 대비 {data[0]} 상승")
+    # print(f"오늘 나스닥 지수 : {nasdaq} | 전일 대비 {data[0]} 상승")
+    writer.writerow(res.split("-----"))
 
 
 def scrap_sp500_index():
@@ -229,35 +266,56 @@ def scrap_sp500_index():
 
     # 전일 대비
     exday = soup.find("p", attrs={"class": "no_exday"})
-    exday_list = exday.find_all("em", attrs={"class": "no_up"})
+    exday_up_list = exday.find_all("em", attrs={"class": "no_up"})
+    exday_down_list = exday.find_all("em", attrs={"class": "no_down"})
 
+    gIdx = gIndex
+    res = f"{gIdx}-----[경제 관련 데이터]-----"
+    res += f"S&P500지수 {sp500}\n"
     data = ""
-    for ex in exday_list:
-        data += ex.get_text().strip().replace("\n", "")
-    data = data.split("\t")
+    if exday_up_list:
+
+        for ex in exday_up_list:
+            data += ex.get_text().strip().replace("\n", "")
+        data = data.split("\t")
+        res += f"전일대비 {data[0]} 상승"
+    else:
+        for ex in exday_down_list:
+            data += ex.get_text().strip().replace("\n", "")
+        data = data.split("\t")
+        res += f"전일대비 {data[0]} 하락"
 
     # 출력
-    print(f"오늘 S&P500 지수 : {sp500} | 전일 대비 {data[0]} 상승")
+    # print(f"오늘 S&P500 지수 : {sp500} | 전일 대비 {data[0]} 상승")
+    writer.writerow(res.split("-----"))
 
 
 ## main
 if __name__ == "__main__":
-    # 현재 시간 출력
-    realtime_print()
 
     # 오늘의 날씨 정보 가져오기
     scrap_weather()
+    gIndex += 1  # CSV완료
 
     # 영어 회화
     scrap_english()
+    gIndex += 2  # CSV완료
 
-    # 국내 분야별 뉴스 가져오기
+    # # 국내 분야별 뉴스
     scrap_news("politics")
+    gIndex += 5
     scrap_news("economy")
+    gIndex += 5
     scrap_news("it")
+    gIndex += 5  # CSV완료
 
-    # 해외 현재 트렌딩 뉴스
+    # # 해외 트렌딩 뉴스
     scrap_global_news("economy")
+    gIndex += 5  # CSV완료
 
-    # 경제 데이터 출력
-    print_economic_data()
+    # # 해외 경제 데이터
+    scrap_exchange_rate()  # 원달러 환율
+    gIndex += 1
+    scrap_nasdaq_index()  #나스닥 지수
+    gIndex += 1
+    scrap_sp500_index()  #S&P500 지수
