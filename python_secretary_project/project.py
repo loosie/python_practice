@@ -67,6 +67,21 @@ def scrap_weather():
         "class": "indicator"
     }).find_all("dd", attrs={"class": "lv1"})
 
+    dust_data2 = soup.find("dl", attrs={
+        "class": "indicator"
+    }).find_all("dd", attrs={"class": "lv2"})
+
+    dust_data1 = ""
+    dust_data2 = ""
+    if dust_data[0].get_text():
+        dust_data1 += dust_data[0].get_text()
+    else:
+        dust_data1 += dust_data2[0].get_text()
+
+    if dust_data[1].get_text():
+        dust_data2 += dust_data[1].get_text()
+    else:
+        dust_data2 += dust_data2[1].get_text()
     # 출력
     # print("[오늘의 날씨]")
     # print(f"현재 {pos_degree} (최저 {min_degree}/ 최고 {max_degree})")
@@ -82,8 +97,8 @@ def scrap_weather():
     res += f"현재 {pos_degree} (최저 {min_degree}/ 최고 {max_degree})\n"
     res += f"{weather_info}\n"
     res += f"오전 강수확률 {rainy_data[0].get_text()}% / 오후 강수확률 {rainy_data[1].get_text()}%\n"
-    res += f"미세먼지 {dust_data[0].get_text()}\n"
-    res += f"초미세먼지 {dust_data[1].get_text()}"
+    res += f"미세먼지 {dust_data1}\n"
+    res += f"초미세먼지 {dust_data2}"
     writer.writerow(res.split("-----"))
 
 
