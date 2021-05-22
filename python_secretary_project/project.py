@@ -65,23 +65,24 @@ def scrap_weather():
     # 미세먼지 정보
     dust_data = soup.find("dl", attrs={
         "class": "indicator"
-    }).find_all("dd", attrs={"class": "lv1"})
+    }).find_all("dd", attrs={"class": re.compile("^lv")})
 
-    dust_data2 = soup.find("dl", attrs={
-        "class": "indicator"
-    }).find_all("dd", attrs={"class": "lv2"})
+    # dust_data2 = soup.find("dl", attrs={
+    #     "class": "indicator"
+    # }).find_all("dd", attrs={"class": "lv2"})
 
     dust_data1 = ""
     dust_data2 = ""
     if dust_data[0].get_text():
         dust_data1 += dust_data[0].get_text()
-    else:
-        dust_data1 += dust_data2[0].get_text()
 
     if dust_data[1].get_text():
         dust_data2 += dust_data[1].get_text()
-    else:
-        dust_data2 += dust_data2[1].get_text()
+
+    # if dust_data[1].get_text():
+    #     dust_data2 += dust_data[1].get_text()
+    # else :
+    #     dust_data2 += dust_data2[1].get_text()
     # 출력
     # print("[오늘의 날씨]")
     # print(f"현재 {pos_degree} (최저 {min_degree}/ 최고 {max_degree})")
@@ -94,11 +95,19 @@ def scrap_weather():
     # print()
     gIdx = gIndex + 1
     res = f"{gIdx}-----[오늘의 날씨]-----"
-    res += f"현재 {pos_degree} (최저 {min_degree}/ 최고 {max_degree})\n"
-    res += f"{weather_info}\n"
-    res += f"오전 강수확률 {rainy_data[0].get_text()}% / 오후 강수확률 {rainy_data[1].get_text()}%\n"
-    res += f"미세먼지 {dust_data1}\n"
-    res += f"초미세먼지 {dust_data2}"
+    res += f"현재 {pos_degree} (최저 {min_degree}/ 최고 {max_degree})"
+    writer.writerow(res.split("-----"))
+
+    res = f"{gIdx+1}-----[오늘의 날씨]-----"
+    res += f"{weather_info}"
+    writer.writerow(res.split("-----"))
+
+    res = f"{gIdx+2}-----[오늘의 날씨]-----"
+    res += f"오전 강수확률 {rainy_data[0].get_text()}% / 오후 강수확률 {rainy_data[1].get_text()}%"
+    writer.writerow(res.split("-----"))
+
+    res = f"{gIdx+3}-----[오늘의 날씨]-----"
+    res += f"미세먼지 {dust_data1} 초미세먼지 {dust_data2}"
     writer.writerow(res.split("-----"))
 
 
@@ -114,19 +123,21 @@ def scrap_english():
 
     gIdx = gIndex
 
-    gIdx = gIdx + 1
-    res = f"{gIdx}-----[오늘의 영어 회화]-----"
     # 8문장이 있다고 가정, 5~8까지 영어문장 (idx: 4~7)
     for txt in sentences[len(sentences) // 2:]:
-        res += f"{txt.get_text().strip()}\n"
-    writer.writerow(res.split("-----"))
+        gIdx = gIdx + 1
+        res = f"{gIdx}-----[오늘의 영어 회화]-----"
+        res += f"{txt.get_text().strip()}"
+        writer.writerow(res.split("-----"))
+
     # print("(한글지문)")
     # 8문장이 있다고 가정, 0~3까지 한글문장 (idx: 0~3)
-    gIdx = gIdx + 1
-    res = f"{gIdx}-----[오늘의 영어 회화]-----"
+
     for txt in sentences[:len(sentences) // 2:]:
-        res += f"{txt.get_text().strip()}\n"
-    writer.writerow(res.split("-----"))
+        gIdx = gIdx + 1
+        res = f"{gIdx}-----[오늘의 영어 회화]-----"
+        res += f"{txt.get_text().strip()}"
+        writer.writerow(res.split("-----"))
 
 
 ############### 국내 News ###############
@@ -161,7 +172,7 @@ def scrap_news(sector):
         gIdx = gIdx + 1
         res = f"{gIdx}-----[국내 {sector_name} 헤드라인 뉴스]-----"
         res += f"{idx+1}. {headline}-----"
-        res += f"{news_link}\n"
+        res += f"{news_link}"
 
         writer.writerow(res.split("-----"))
 
@@ -192,7 +203,7 @@ def scrap_global_news(sector):
         gIdx = gIdx + 1
         res = f"{gIdx}-----[해외 헤드라인 뉴스]-----"
         res += f"{idx+1}. {headline}-----"
-        res += f"{news_link}\n"
+        res += f"{news_link}"
 
         writer.writerow(res.split("-----"))
 
@@ -220,7 +231,7 @@ def scrap_exchange_rate():
 
     gIdx = gIndex
     res = f"{gIdx}-----[경제 관련 데이터]-----"
-    res += f"달러환율 {exchange_rate}\n"
+    res += f"달러환율 {exchange_rate}"
     data = ""
     if exday_up_list:
 
@@ -253,7 +264,7 @@ def scrap_nasdaq_index():
 
     gIdx = gIndex
     res = f"{gIdx}-----[경제 관련 데이터]-----"
-    res += f"나스닥지수 {nasdaq}\n"
+    res += f"나스닥지수 {nasdaq}"
     data = ""
     if exday_up_list:
 
@@ -286,7 +297,7 @@ def scrap_sp500_index():
 
     gIdx = gIndex
     res = f"{gIdx}-----[경제 관련 데이터]-----"
-    res += f"S&P500지수 {sp500}\n"
+    res += f"S&P500지수 {sp500}"
     data = ""
     if exday_up_list:
 
@@ -310,11 +321,11 @@ if __name__ == "__main__":
 
     # 오늘의 날씨 정보 가져오기
     scrap_weather()
-    gIndex += 1  # CSV완료
+    gIndex += 4  # CSV완료
 
     # 영어 회화
     scrap_english()
-    gIndex += 2  # CSV완료
+    gIndex += 8  # CSV완료
 
     # # 국내 분야별 뉴스
     scrap_news("politics")
