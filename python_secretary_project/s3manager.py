@@ -29,5 +29,5 @@ def upload(bucket_name, file_path):
 
 if __name__ == "__main__":
     aws_session()
-    s3_url = upload('s3-loobie', '20210522.csv')
+    s3_url = upload('s3-loobie', '20210526.csv')
     print(s3_url)

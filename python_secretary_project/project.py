@@ -21,12 +21,12 @@ f = open(filename, "w", encoding="utf8", newline="")
 writer = csv.writer(f)
 
 ## CSV 열 목록 생성
-title = "N\t카테고리\t내용\t링크".split("\t")
+title = "N#\t카테고리#\t내용#\t링크".split("\t")
 writer.writerow(title)
 
 print(f"안녕하세요. 오늘은 {nowDate} 입니다.")  # 2021-05-112
 
-res = f"{gIndex}-----[오늘의 날짜]-----"
+res = f"{gIndex}#-----[오늘의 날짜]#-----"
 res += f"{nowDate}"
 writer.writerow(res.split("-----"))
 
@@ -170,8 +170,8 @@ def scrap_news(sector):
         news_link = article.a["href"]
 
         gIdx = gIdx + 1
-        res = f"{gIdx}-----[국내 {sector_name} 헤드라인 뉴스]-----"
-        res += f"{idx+1}. {headline}-----"
+        res = f"{gIdx}#-----[뉴스 {sector_name}]#-----"
+        res += f"{idx+1}. {headline}#-----"
         res += f"{news_link}"
 
         writer.writerow(res.split("-----"))
@@ -201,8 +201,8 @@ def scrap_global_news(sector):
         news_link = article.a["href"]
 
         gIdx = gIdx + 1
-        res = f"{gIdx}-----[해외 헤드라인 뉴스]-----"
-        res += f"{idx+1}. {headline}-----"
+        res = f"{gIdx}#-----[뉴스 CNBC]#-----"
+        res += f"{idx+1}. {headline}#-----"
         res += f"{news_link}"
 
         writer.writerow(res.split("-----"))
@@ -230,7 +230,7 @@ def scrap_exchange_rate():
     exday_down_list = exday.find_all("em", attrs={"class": "no_down"})
 
     gIdx = gIndex
-    res = f"{gIdx}-----[경제 관련 데이터]-----"
+    res = f"{gIdx}#-----[경제 관련 데이터]#&-----"
     res += f"달러환율 {exchange_rate}"
     data = ""
     if exday_up_list:
@@ -263,7 +263,7 @@ def scrap_nasdaq_index():
     exday_down_list = exday.find_all("em", attrs={"class": "no_down"})
 
     gIdx = gIndex
-    res = f"{gIdx}-----[경제 관련 데이터]-----"
+    res = f"{gIdx}#-----[경제 관련 데이터]#-----"
     res += f"나스닥지수 {nasdaq}"
     data = ""
     if exday_up_list:
@@ -296,7 +296,7 @@ def scrap_sp500_index():
     exday_down_list = exday.find_all("em", attrs={"class": "no_down"})
 
     gIdx = gIndex
-    res = f"{gIdx}-----[경제 관련 데이터]-----"
+    res = f"{gIdx}#-----[경제 관련 데이터]#-----"
     res += f"S&P500지수 {sp500}"
     data = ""
     if exday_up_list:
@@ -320,12 +320,12 @@ def scrap_sp500_index():
 if __name__ == "__main__":
 
     # 오늘의 날씨 정보 가져오기
-    scrap_weather()
-    gIndex += 4  # CSV완료
+    # scrap_weather()
+    # gIndex += 4  # CSV완료
 
     # 영어 회화
-    scrap_english()
-    gIndex += 8  # CSV완료
+    # scrap_english()
+    # gIndex += 8  # CSV완료
 
     # # 국내 분야별 뉴스
     scrap_news("politics")
