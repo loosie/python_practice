@@ -230,20 +230,20 @@ def scrap_exchange_rate():
     exday_down_list = exday.find_all("em", attrs={"class": "no_down"})
 
     gIdx = gIndex
-    res = f"{gIdx}#-----[경제 관련 데이터]#&-----"
-    res += f"달러환율 {exchange_rate}"
+    res = f"{gIdx}#-----[경제 환율]#-----"
+    res += f"{exchange_rate}"
     data = ""
     if exday_up_list:
 
         for ex in exday_up_list:
             data += ex.get_text().strip().replace("\n", "")
         data = data.split("\t")
-        res += f"전일대비 {data[0]} 상승"
+        res += f"@{data[0]} 상승"
     else:
         for ex in exday_down_list:
             data += ex.get_text().strip().replace("\n", "")
         data = data.split("\t")
-        res += f"전일대비 {data[0]} 하락"
+        res += f"@{data[0]} 하락"
 
     # 출력
     # print(f"원달러 환율 {exchange_rate}원 | 전일 대비 {data[0]} 상승")
@@ -263,20 +263,20 @@ def scrap_nasdaq_index():
     exday_down_list = exday.find_all("em", attrs={"class": "no_down"})
 
     gIdx = gIndex
-    res = f"{gIdx}#-----[경제 관련 데이터]#-----"
-    res += f"나스닥지수 {nasdaq}"
+    res = f"{gIdx}#-----[경제 나스닥]#-----"
+    res += f"{nasdaq}"
     data = ""
     if exday_up_list:
 
         for ex in exday_up_list:
             data += ex.get_text().strip().replace("\n", "")
         data = data.split("\t")
-        res += f"전일대비 {data[0]} 상승"
+        res += f"@{data[0]} 상승"
     else:
         for ex in exday_down_list:
             data += ex.get_text().strip().replace("\n", "")
         data = data.split("\t")
-        res += f"전일대비 {data[0]} 하락"
+        res += f"@{data[0]} 하락"
 
     # 출력
     # print(f"오늘 나스닥 지수 : {nasdaq} | 전일 대비 {data[0]} 상승")
@@ -296,20 +296,20 @@ def scrap_sp500_index():
     exday_down_list = exday.find_all("em", attrs={"class": "no_down"})
 
     gIdx = gIndex
-    res = f"{gIdx}#-----[경제 관련 데이터]#-----"
-    res += f"S&P500지수 {sp500}"
+    res = f"{gIdx}#-----[경제 SP]#-----"
+    res += f"{sp500}"
     data = ""
     if exday_up_list:
 
         for ex in exday_up_list:
             data += ex.get_text().strip().replace("\n", "")
         data = data.split("\t")
-        res += f"전일대비 {data[0]} 상승"
+        res += f"@{data[0]} 상승"
     else:
         for ex in exday_down_list:
             data += ex.get_text().strip().replace("\n", "")
         data = data.split("\t")
-        res += f"전일대비 {data[0]} 하락"
+        res += f"@{data[0]} 하락"
 
     # 출력
     # print(f"오늘 S&P500 지수 : {sp500} | 전일 대비 {data[0]} 상승")
