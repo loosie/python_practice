@@ -1,6 +1,7 @@
 import os
+from typing import SupportsRound
 import boto3
-
+import datetime
 from dotenv import load_dotenv
 
 load_dotenv(verbose=True)
@@ -29,5 +30,11 @@ def upload(bucket_name, file_path):
 
 if __name__ == "__main__":
     aws_session()
-    s3_url = upload('s3-loobie', '20210527.csv')
+
+    now = datetime.datetime.now()
+    now_date = now.strftime('%Y%m%d')
+    file_name = now_date + ".csv"
+    file_path = f"data/{file_name}"
+
+    s3_url = upload('s3-loobie', file_path)
     print(s3_url)

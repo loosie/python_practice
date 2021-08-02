@@ -16,7 +16,7 @@ nowDate = now.strftime('%Y년 %m월 %d일 (%a)')
 
 ## CSV 파일 생성
 fileDate = now.strftime('%Y%m%d')
-filename = f"{fileDate}.csv"
+filename = f"data/{fileDate}.csv"
 f = open(filename, "w", encoding="utf8", newline="")
 writer = csv.writer(f)
 
@@ -171,7 +171,7 @@ def scrap_news(sector):
 
         gIdx = gIdx + 1
         res = f"{gIdx}#-----[뉴스 {sector_name}]#-----"
-        res += f"{idx+1}. {headline}#-----"
+        res += f"{headline}#-----"
         res += f"{news_link}"
 
         writer.writerow(res.split("-----"))
@@ -202,7 +202,7 @@ def scrap_global_news(sector):
 
         gIdx = gIdx + 1
         res = f"{gIdx}#-----[뉴스 CNBC]#-----"
-        res += f"{idx+1}. {headline}#-----"
+        res += f"{headline}#-----"
         res += f"{news_link}"
 
         writer.writerow(res.split("-----"))
@@ -239,11 +239,17 @@ def scrap_exchange_rate():
             data += ex.get_text().strip().replace("\n", "")
         data = data.split("\t")
         res += f"@{data[0]} 상승"
-    else:
+    elif exday_down_list:
         for ex in exday_down_list:
             data += ex.get_text().strip().replace("\n", "")
         data = data.split("\t")
         res += f"@{data[0]} 하락"
+    else:
+        exday_zero_list = exday.find_all("em")
+        for ex in exday_zero_list:
+            data += ex.get_text().strip().replace("\n", "")
+        data = data.split("\t")
+        res += f"@{data[0]} 변화없음"
 
     # 출력
     # print(f"원달러 환율 {exchange_rate}원 | 전일 대비 {data[0]} 상승")
