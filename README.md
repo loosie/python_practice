@@ -1,4 +1,4 @@
-# Python_Practice
+# python 공부
 
 ### 1. python_study_example
 동적 & 정적 웹 스크래핑 , Selenium을 활용한 웹 자동화, csv저장 등 python 예제 모음
