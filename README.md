@@ -9,5 +9,10 @@
 ### 2. python_secretary_project
 루비 프로젝트에 사용할 데이터 스크래핑 python 파일
 
+<br>
+
+### 3. python_stock_auto_program
+주가 slack 알림 봇 만들기 [(repo)](https://github.com/loosie/python_stock_auto_program)
+
 ---
-최종 수정 2021.08.13 © loosie
+최종 수정 2021.08.30 © loosie
